@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find ros_maestro)/launch/test.launch">
+      <arg name="config_path" value="$(find ros_maestro)/config/pwmconfig_example.yaml">
+      <arg name="port" value="/dev/polulu_servo_serial" >
+    </include>
+</launch>

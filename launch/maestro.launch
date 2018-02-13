@@ -1,8 +1,10 @@
 <launch>
+    <arg name="config_path">
+    <arg name="port">
 
     <node name="maestro_driver" pkg="ros_maestro" type="maestro_driver.py">
-        <param name="port" value="/dev/polulu_servo_serial"/>
-        <rosparam file="$(find ros_maestro)/config/pwmconfig.yaml" command="load"/>
+        <param name="port" value="$(arg port)"/>
+        <rosparam file="$(arg config_path)" command="load"/>
     </node>
-
+    
 </launch>
