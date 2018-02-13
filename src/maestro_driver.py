@@ -8,7 +8,7 @@ import rospy
 from std_msgs.msg import Float32
 from maestro.maestro import Controller
 # from maestro_sim.maestro import Controller # En cas de problème de driver, celui-ci est plus compréhensible et se debug bien
-from helios_command.msg import PwmCmd
+from ros_maestro.msg import PwmCmd
 
 
 # 1000 : marche avant
