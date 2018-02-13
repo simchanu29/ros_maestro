@@ -96,7 +96,7 @@ if __name__ == '__main__':
     for device in devices:
         if devices[device]['type']=='input':
             sensors[device] = devices[device]
-            sensors['publisher'] = rospy.Publisher(devices[device]['data_type'], Float32, queue_size=1)
+            sensors['publisher'] = rospy.Publisher(devices[device], Float32, queue_size=1)
 
     while not rospy.is_shutdown():
         try:
