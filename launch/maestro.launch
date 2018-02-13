@@ -1,6 +1,6 @@
 <launch>
 
-    <node name="mastro_driver" pkg="ros_maestro" type="maestro_driver.py">
+    <node name="maestro_driver" pkg="ros_maestro" type="maestro_driver.py">
         <param name="port" value="/dev/polulu_servo_serial"/>
         <rosparam file="$(find ros_maestro)/config/pwmconfig.yaml" command="load"/>
     </node>

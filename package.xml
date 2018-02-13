@@ -4,7 +4,7 @@
   <version>0.0.0</version>
   <description>Driver node for polulu maestro</description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
+  <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
   <maintainer email="simon.chanu@ensta.bretagne.org">Simon CHANU</maintainer>

@@ -10,40 +10,28 @@ from maestro.maestro import Controller
 # from maestro_sim.maestro import Controller # En cas de problème de driver, celui-ci est plus compréhensible et se debug bien
 from ros_maestro.msg import PwmCmd
 
-
 # 1000 : marche avant
 # 1500 : statique
 # 2000 : marche arrière
 # Channel : 0:L 1:R
 
-# def callbackT1(msg):
-#
-#     thrust1 = msg.data # Left -1;1
-#     rospy.loginfo("Suscriber T1 received : %d", int(thrust1*700+6000))
-#     maestro.setTarget(0,int(-thrust1*2000+6000))
-#
-# def callbackT2(msg):
-#
-#     thrust2 = msg.data # Right -1;1
-#     rospy.loginfo("Suscriber T2 received : %d", int(thrust2*700+6000))
-#     maestro.setTarget(1,int(-thrust2*2000+6000))
-
 class PWMBoard(Controller):
-    def __init__(self, port, pwm_devices, command_types):
+    def __init__(self, port, devices, sensors, data_types):
         Controller.__init__(self, ttyStr=port)
 
         # Formattage des données (quelle pin de la carte associée à quoi)
-        self.devices_by_pins = self.gen_dic_by_pin_keys(pwm_devices)
-        self.devices_by_name = pwm_devices
-        self.types = command_types
+        self.devices_by_pins = self.gen_dic_by_pin_keys(devices)
+        self.devices_by_name = devices
+        self.types = data_types
+        self.sensors = sensors
         print 'devices_by_pins : ', self.devices_by_pins
 
         for device in self.devices_by_name:
             pin = self.devices_by_name[device]['pin']
             command_type = self.devices_by_name[device]['command_type']
-            self.setAccel(pin, self.types[command_type]['accel'])
+            self.setAccel(pin, self.types[data_type]['accel'])
 
-    def gen_dic_by_pin_keys(self, pwm_devices):
+    def gen_dic_by_pin_keys(self, devices):
         """
         Transforme la table de hachage où on accède aux numéros des pins par le nom de l'appareil en une table de
         hachage où on accède au nom de l'appareil par son numéro de pin associé
@@ -51,9 +39,9 @@ class PWMBoard(Controller):
         :return pin_dic:
         """
         pin_dic = dict()
-        for device in pwm_devices:
+        for device in devices:
             print 'device :', device
-            pin = int(pwm_devices[device]['pin'])
+            pin = int(devices[device]['pin'])
             pin_dic[pin] = device
         return pin_dic
 
@@ -83,25 +71,14 @@ class PWMBoard(Controller):
         print 'cmd sent to board :', int(cmd)
         self.setTarget(int(msg.pin), int(cmd))
 
-    def hotfix_publisher(self, curr1, curr2, volt1, volt2):
-#        rospy.loginfo("getting positions")
-        volt1_val = self.getPosition(8)
-        curr1_val = self.getPosition(9)
-        volt2_val = self.getPosition(10)
-        curr2_val = self.getPosition(11)
+    def publisher(self, device):
+        pub = sensors[device]['publisher']
+        pin = int(sensors[device]['pin'])
 
-        volt1_val = volt1_val/255.75*5.0*15.7*0.91
-        volt2_val = volt2_val/255.75*5.0*15.7*0.91
-
-#        rospy.loginfo("Sensors values")
-        volt1.publish(volt1_val)
-#        rospy.loginfo(volt1_val)
-        volt2.publish(volt2_val)
-#        rospy.loginfo(volt2_val)
-        curr1.publish(curr1_val)
-#        rospy.loginfo(curr1_val)
-        curr2.publish(curr2_val)
-#        rospy.loginfo(curr2_val)
+        # rospy.loginfo("getting positions")
+        val = self.getPosition(pin)
+        # rospy.loginfo("Sensors values")
+        pub.publish(val)
 
 if __name__ == '__main__':
 
@@ -109,21 +86,22 @@ if __name__ == '__main__':
 
     rospy.loginfo("driver_maestro Node Initialised")
     port = rospy.get_param('~port', "/dev/ttyACM0")
-    pwm_devices = rospy.get_param('~pwm_device')
-    command_types = rospy.get_param('~command_type')
+    devices = rospy.get_param('~device')
+    data_types = rospy.get_param('~data_type')
 
-    maestro = PWMBoard(port, pwm_devices, command_types)
+    maestro = PWMBoard(port, devices, data_types)
     rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
 
-    # Hotfix TODO faire un truc plus propre
-    curr1 = rospy.Publisher('curr_1', Float32, queue_size=1)
-    volt1 = rospy.Publisher('volt_1', Float32, queue_size=1)
-    curr2 = rospy.Publisher('curr_2', Float32, queue_size=1)
-    volt2 = rospy.Publisher('volt_2', Float32, queue_size=1)
+    sensors = {}
+    for device in devices:
+        if devices[device]['type']=='input':
+            sensors[device] = devices[device]
+            sensors['publisher'] = rospy.Publisher(devices[device]['data_type'], Float32, queue_size=1)
 
     while not rospy.is_shutdown():
         try:
             rospy.rostime.wallsleep(0.5)
-            maestro.hotfix_publisher(curr1, curr2, volt1, volt2)
+            for device in sensors:
+                maestro.publish(device)
         except rospy.ROSInterruptException:
             maestro.close()
