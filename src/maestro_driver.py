@@ -67,7 +67,7 @@ class PWMBoard(Controller):
         print 'pwm sent to board :', int(cmd)
 
         # Envoi de la commande (traduction en polulu 0-2000 = 0-8192)
-        cmd = int(cmd*4.096)
+        cmd = int(cmd*4.000)
         print 'cmd sent to board :', int(cmd)
         self.setTarget(int(msg.pin), int(cmd))
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     devices = rospy.get_param('~device')
     data_types = rospy.get_param('~data_type')
 
-    maestro = PWMBoard(port, devices, data_types)
+    maestro = PWMBoard(port, actuators, sensors, data_types)
     rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
 
     sensors = {}

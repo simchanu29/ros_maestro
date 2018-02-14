@@ -1,6 +1,6 @@
 <launch>
-    <arg name="config_path">
-    <arg name="port">
+    <arg name="config_path"/>
+    <arg name="port"/>
 
     <node name="maestro_driver" pkg="ros_maestro" type="maestro_driver.py">
         <param name="port" value="$(arg port)"/>
