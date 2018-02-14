@@ -26,8 +26,8 @@ if __name__ == '__main__':
     rospy.init_node('driver_attopilot')
     rospy.loginfo("Node Initialised")
 
-    sub_voltage = ('~volt_topic', "battery1_voltage_raw")
-    sub_current = ('~curr_topic', "battery1_current_raw")
+    sub_voltage = rospy.get_param('~volt_topic', "battery1_voltage_raw")
+    sub_current = rospy.get_param('~curr_topic', "battery1_current_raw")
 
     # Publication sans le suffixe _raw
     pub_volt = rospy.Publisher(sub_voltage[:-4], Float32, queue_size=1)
