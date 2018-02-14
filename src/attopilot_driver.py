@@ -30,11 +30,11 @@ if __name__ == '__main__':
     sub_current = ('~curr_topic', "battery1_current_raw")
 
     # Publication sans le suffixe _raw
-    rospy.Publisher(sub_voltage[:-4], Float32, queue_size=1)
-    rospy.Publisher(sub_current[:-4], Float32, queue_size=1)
+    pub_volt = rospy.Publisher(sub_voltage[:-4], Float32, queue_size=1)
+    pub_curr = rospy.Publisher(sub_current[:-4], Float32, queue_size=1)
 
     # Abonnenements
-    pub_volt = rospy.Subscriber(sub_voltage, Float32, cb_voltage)
-    pub_curr = rospy.Subscriber(sub_current, Float32, cb_current)
+    rospy.Subscriber(sub_voltage, Float32, cb_voltage)
+    rospy.Subscriber(sub_current, Float32, cb_current)
 
     rospy.spin()
