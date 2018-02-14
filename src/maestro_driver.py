@@ -16,19 +16,19 @@ from ros_maestro.msg import PwmCmd
 # Channel : 0:L 1:R
 
 class PWMBoard(Controller):
-    def __init__(self, port, devices, sensors, data_types):
+    def __init__(self, port, actuators, sensors, data_types):
         Controller.__init__(self, ttyStr=port)
 
         # Formattage des données (quelle pin de la carte associée à quoi)
-        self.devices_by_pins = self.gen_dic_by_pin_keys(devices)
-        self.devices_by_name = devices
+        self.devices_by_pins = self.gen_dic_by_pin_keys(actuators)
+        self.devices_by_name = actuators
         self.types = data_types
         self.sensors = sensors
         print 'devices_by_pins : ', self.devices_by_pins
 
         for device in self.devices_by_name:
             pin = self.devices_by_name[device]['pin']
-            command_type = self.devices_by_name[device]['command_type']
+            data_type = self.devices_by_name[device]['data_type']
             self.setAccel(pin, self.types[data_type]['accel'])
 
     def gen_dic_by_pin_keys(self, devices):
@@ -53,7 +53,7 @@ class PWMBoard(Controller):
         # Gestion du type de commande
         device_name = self.devices_by_pins[msg.pin]
         print 'device_name', device_name
-        type = self.devices_by_name[device_name]['command_type']
+        type = self.devices_by_name[device_name]['data_type']
         print 'type', type
         range = self.types[type]['range']
         range_min = range[0]
@@ -67,18 +67,19 @@ class PWMBoard(Controller):
         print 'pwm sent to board :', int(cmd)
 
         # Envoi de la commande (traduction en polulu 0-2000 = 0-8192)
-        cmd = int(cmd*4.096)
+        cmd = int(cmd*4.000)
         print 'cmd sent to board :', int(cmd)
         self.setTarget(int(msg.pin), int(cmd))
 
-    def publisher(self, device):
-        pub = sensors[device]['publisher']
-        pin = int(sensors[device]['pin'])
+    def publish(self, sensors):
+        for device in sensors:
+            pub = sensors[device]['publisher']
+            pin = int(sensors[device]['pin'])
 
-        # rospy.loginfo("getting positions")
-        val = self.getPosition(pin)
-        # rospy.loginfo("Sensors values")
-        pub.publish(val)
+            # rospy.loginfo("getting positions")
+            val = self.getPosition(pin)
+            # rospy.loginfo("Sensors values")
+            pub.publish(val)
 
 if __name__ == '__main__':
 
@@ -89,19 +90,22 @@ if __name__ == '__main__':
     devices = rospy.get_param('~device')
     data_types = rospy.get_param('~data_type')
 
-    maestro = PWMBoard(port, devices, data_types)
-    rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
-
+    actuators = {}
     sensors = {}
     for device in devices:
-        if devices[device]['type']=='input':
+        print data_types[devices[device]['data_type']]['type']
+        if data_types[devices[device]['data_type']]['type']=='input':
             sensors[device] = devices[device]
-            sensors['publisher'] = rospy.Publisher(devices[device], Float32, queue_size=1)
+            sensors[device]['publisher'] = rospy.Publisher(device, Float32, queue_size=1)
+        if data_types[devices[device]['data_type']]['type']=='output':
+            actuators[device] = devices[device]
+
+    maestro = PWMBoard(port, actuators, sensors, data_types)
+    rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
 
     while not rospy.is_shutdown():
         try:
-            rospy.rostime.wallsleep(0.5)
-            for device in sensors:
-                maestro.publish(device)
+            rospy.rostime.wallsleep(0.1)
+            maestro.publish(sensors)
         except rospy.ROSInterruptException:
             maestro.close()
