@@ -16,12 +16,12 @@ from ros_maestro.msg import PwmCmd
 # Channel : 0:L 1:R
 
 class PWMBoard(Controller):
-    def __init__(self, port, devices, sensors, data_types):
+    def __init__(self, port, actuators, sensors, data_types):
         Controller.__init__(self, ttyStr=port)
 
         # Formattage des données (quelle pin de la carte associée à quoi)
-        self.devices_by_pins = self.gen_dic_by_pin_keys(devices)
-        self.devices_by_name = devices
+        self.devices_by_pins = self.gen_dic_by_pin_keys(actuators)
+        self.devices_by_name = actuators
         self.types = data_types
         self.sensors = sensors
         print 'devices_by_pins : ', self.devices_by_pins
@@ -71,14 +71,15 @@ class PWMBoard(Controller):
         print 'cmd sent to board :', int(cmd)
         self.setTarget(int(msg.pin), int(cmd))
 
-    def publisher(self, device):
-        pub = sensors[device]['publisher']
-        pin = int(sensors[device]['pin'])
+    def publisher(self, sensors):
+        for device in sensors
+            pub = sensors[device]['publisher']
+            pin = int(sensors[device]['pin'])
 
-        # rospy.loginfo("getting positions")
-        val = self.getPosition(pin)
-        # rospy.loginfo("Sensors values")
-        pub.publish(val)
+            # rospy.loginfo("getting positions")
+            val = self.getPosition(pin)
+            # rospy.loginfo("Sensors values")
+            pub.publish(val)
 
 if __name__ == '__main__':
 
@@ -89,19 +90,21 @@ if __name__ == '__main__':
     devices = rospy.get_param('~device')
     data_types = rospy.get_param('~data_type')
 
-    maestro = PWMBoard(port, actuators, sensors, data_types)
-    rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
-
+    actuators = {}
     sensors = {}
     for device in devices:
         if devices[device]['type']=='input':
             sensors[device] = devices[device]
             sensors['publisher'] = rospy.Publisher(devices[device], Float32, queue_size=1)
+        if devices[device]['type']=='output':
+            actuators[device] = devices[device]
+
+    maestro = PWMBoard(port, actuators, sensors, data_types)
+    rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
 
     while not rospy.is_shutdown():
         try:
             rospy.rostime.wallsleep(0.5)
-            for device in sensors:
-                maestro.publish(device)
+            maestro.publish(sensors)
         except rospy.ROSInterruptException:
             maestro.close()
