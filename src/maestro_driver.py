@@ -72,7 +72,7 @@ class PWMBoard(Controller):
         self.setTarget(int(msg.pin), int(cmd))
 
     def publisher(self, sensors):
-        for device in sensors
+        for device in sensors:
             pub = sensors[device]['publisher']
             pin = int(sensors[device]['pin'])
 
