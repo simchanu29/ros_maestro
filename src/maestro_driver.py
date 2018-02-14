@@ -28,7 +28,7 @@ class PWMBoard(Controller):
 
         for device in self.devices_by_name:
             pin = self.devices_by_name[device]['pin']
-            command_type = self.devices_by_name[device]['command_type']
+            data_type = self.devices_by_name[device]['data_type']
             self.setAccel(pin, self.types[data_type]['accel'])
 
     def gen_dic_by_pin_keys(self, devices):
@@ -53,7 +53,7 @@ class PWMBoard(Controller):
         # Gestion du type de commande
         device_name = self.devices_by_pins[msg.pin]
         print 'device_name', device_name
-        type = self.devices_by_name[device_name]['command_type']
+        type = self.devices_by_name[device_name]['data_type']
         print 'type', type
         range = self.types[type]['range']
         range_min = range[0]
@@ -71,7 +71,7 @@ class PWMBoard(Controller):
         print 'cmd sent to board :', int(cmd)
         self.setTarget(int(msg.pin), int(cmd))
 
-    def publisher(self, sensors):
+    def publish(self, sensors):
         for device in sensors:
             pub = sensors[device]['publisher']
             pin = int(sensors[device]['pin'])
@@ -93,10 +93,11 @@ if __name__ == '__main__':
     actuators = {}
     sensors = {}
     for device in devices:
-        if devices[device]['type']=='input':
+        print data_types[devices[device]['data_type']]['type']
+        if data_types[devices[device]['data_type']]['type']=='input':
             sensors[device] = devices[device]
-            sensors['publisher'] = rospy.Publisher(devices[device], Float32, queue_size=1)
-        if devices[device]['type']=='output':
+            sensors[device]['publisher'] = rospy.Publisher(device, Float32, queue_size=1)
+        if data_types[devices[device]['data_type']]['type']=='output':
             actuators[device] = devices[device]
 
     maestro = PWMBoard(port, actuators, sensors, data_types)
@@ -104,7 +105,7 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         try:
-            rospy.rostime.wallsleep(0.5)
+            rospy.rostime.wallsleep(0.1)
             maestro.publish(sensors)
         except rospy.ROSInterruptException:
             maestro.close()

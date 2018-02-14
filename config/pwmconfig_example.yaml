@@ -27,7 +27,7 @@ device:
     'data_type': 'motor100'
   'thruster_right':
     'pin': 1
-    'command_type': 'motor100'
+    'data_type': 'motor100'
   'battery1_voltage_raw':
     'pin': 8
     'data_type': 'attopilot'
