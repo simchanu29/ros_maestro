@@ -6,11 +6,11 @@
 # Input  : Service de gestion du relais
 import rospy
 from std_msgs.msg import Float32
-from ros_maestro.msg import PwmMsg
+from ros_maestro.msg import PwmCmd
 
 def activate_relay(req):
     global pin
-    pwmmsg = PwmMsg()
+    pwmmsg = PwmCmd()
     pwmmsg.pin = pin
     pwmmsg.command = 100.0
     pub.publish(pwmmsg)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     pin = ('~relay_pin', "6")
 
     # Publication sans le suffixe _raw
-    rospy.Publisher(sub_voltage[:-4], Float32, maestro.cb_pwm)
+    rospy.Publisher('pwm_cmd', PwmCmd, queue_size=1)
 
 
     rospy.spin()
