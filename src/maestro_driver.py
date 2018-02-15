@@ -68,7 +68,7 @@ class PWMBoard(Controller):
 
         # Envoi de la commande (traduction en polulu 0-2000 = 0-8192)
         cmd = int(cmd*4.000)
-        print 'cmd sent to board :', int(cmd)
+        print 'cmd sent to board :', int(cmd), 'on pin', msg.pin
         self.setTarget(int(msg.pin), int(cmd))
 
     def publish(self, sensors):

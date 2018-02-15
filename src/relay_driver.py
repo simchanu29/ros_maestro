@@ -2,31 +2,35 @@
 # coding=utf-8
 
 # Author : Simon CHANU
-# Notes  : Uniquement un noeud de traitement TOSO HOTFIX a faire propre.
-# Input  : Service de gestion du relais
+# Notes  : Uniquement un noeud de traitement
+# Input  : tension ou courant en Float32
 import rospy
-from std_msgs.msg import Float32
+from std_srvs.srv import SetBool, SetBoolResponse
 from ros_maestro.msg import PwmCmd
 
-def activate_relay(req):
-    global pin
-    pwmmsg = PwmCmd()
-    pwmmsg.pin = pin
-    pwmmsg.command = 100.0
-    pub.publish(pwmmsg)
+def toogle_relay(req):
+    global pub
+    msg = PwmCmd()
+    msg.pin = 6
+    response = SetBoolResponse(0, 'relay desactivated (open)')
+    if req.data:
+        msg.command = 100
+        response = SetBoolResponse(0, 'relay activated (closed)')
+    else:
+        msg.command = -100
 
-def desactivate_relay(req):
-    pub.publish(msg.daorique * coeffAjustement)
+    pub.publish(msg)
+    return response
 
 if __name__ == '__main__':
 
-    rospy.init_node('driver_attopilot')
-    rospy.loginfo("driver_maestro Node Initialised")
+    rospy.init_node('driver_relay')
+    rospy.loginfo("Node Initialised")
 
-    pin = ('~relay_pin', "6")
+    s = rospy.Service('toogle_relay', SetBool, toogle_relay)
 
     # Publication sans le suffixe _raw
-    rospy.Publisher('pwm_cmd', PwmCmd, queue_size=1)
-
+    pub = rospy.Publisher('pwm_cmd', PwmCmd, queue_size=1)
+    print "service setup"
 
     rospy.spin()
