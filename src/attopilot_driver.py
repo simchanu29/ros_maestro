@@ -13,25 +13,36 @@ class Attopilot:
         self.curr_tab = []
         self.volt_tab = []
         self.tab_len = 100
+        self.voltage_limit = 20.0
+        self.current_limit = 30.0
 
     def cb_voltage(self, msg):
         # 255.75 pts sur 5V avec un ratio de 1:15.7
         coeffTheorique = 1/255.75*5.0*15.7
         coeffAjustement = 1.0/13.83
-        voltage = msg.data * coeffAjustement
-        self.volt_tab.append(voltage)
+        voltage_raw = msg.data * coeffAjustement
+        self.volt_tab.append(voltage_raw)
         if len(self.volt_tab)>self.tab_len:
             self.volt_tab = self.volt_tab[1:]
-        self.pub_volt.publish(np.mean(self.volt_tab))
+
+        voltage = np.mean(self.volt_tab)
+        if voltage<self.voltage_limit:
+            rospy.logerr("Battery too low (<20V) [safety margin : 2V]")
+        self.pub_volt.publish(voltage)
 
     def cb_current(self, msg):
         # 255.75 pts sur 5V avec un ratio de 1:15.7
         coeffTheorique = 1/255.75*5.0*15.7
         coeffAjustement = 1.0/49.8
-        current = msg.data * coeffAjustement
+        current_raw = msg.data * coeffAjustement
+        self.curr_tab.append(current_raw)
         if len(self.curr_tab)>self.tab_len:
             self.curr_tab = self.curr_tab[1:]
-        self.pub_curr.publish(msg.data * coeffAjustement)
+
+        current = np.mean(self.curr_tab)
+        if current<self.current_limit:
+            rospy.logerr("Consumption too high on one battery (>15A) [2 batteries : 30A]")
+        self.pub_curr.publish(current)
 
 if __name__ == '__main__':
 
