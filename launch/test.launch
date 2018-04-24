@@ -1,15 +1,15 @@
 <launch>
     <include file="$(find ros_maestro)/launch/test.launch">
-      <arg name="config_path" value="$(find ros_maestro)/config/pwmconfig_example.yaml">
-      <arg name="port" value="/dev/polulu_servo_serial" >
+      <arg name="config_path" value="$(find ros_maestro)/config/pwmconfig_example.yaml"/>
+      <arg name="port" value="/dev/polulu_servo_serial"/>
     </include>
 
-    <node name="attopilot1" pkg=" mypackage" type="attopilot_driver.py">
+    <node name="attopilot1" pkg="ros_maestro" type="attopilot_driver.py">
       <param name="~volt_topic" value="battery1_voltage_raw"/>
       <param name="~curr_topic" value="battery1_current_raw"/>
     </node>
 
-    <node name="attopilot2" pkg=" mypackage" type="relay_driver.py">
+    <node name="attopilot2" pkg="ros_maestro" type="relay_driver.py">
       <param name="~volt_topic" value="battery2_voltage_raw"/>
       <param name="~curr_topic" value="battery2_current_raw"/>
     </node>
