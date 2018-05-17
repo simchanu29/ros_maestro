@@ -18,7 +18,7 @@ class Attopilot:
 
     def cb_voltage(self, msg):
         # 255.75 pts sur 5V avec un ratio de 1:15.7
-        coeffTheorique = 1/255.75*5.0*15.7
+        # coeffTheorique = 1/255.75*5.0*15.7
         coeffAjustement = 1.0/13.83
         voltage_raw = msg.data * coeffAjustement
         self.volt_tab.append(voltage_raw)
@@ -32,7 +32,7 @@ class Attopilot:
 
     def cb_current(self, msg):
         # 255.75 pts sur 5V avec un ratio de 1:15.7
-        coeffTheorique = 1/255.75*5.0*15.7
+        # coeffTheorique = 1/255.75*5.0*15.7
         coeffAjustement = 1.0/49.8
         current_raw = msg.data * coeffAjustement
         self.curr_tab.append(current_raw)
@@ -40,7 +40,7 @@ class Attopilot:
             self.curr_tab = self.curr_tab[1:]
 
         current = np.mean(self.curr_tab)
-        if current<self.current_limit:
+        if current>self.current_limit:
             rospy.logerr("Consumption too high on one battery (>15A) [2 batteries : 30A]")
         self.pub_curr.publish(current)
 

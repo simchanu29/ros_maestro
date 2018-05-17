@@ -87,8 +87,8 @@ if __name__ == '__main__':
 
     rospy.loginfo("driver_maestro Node Initialised")
     port = rospy.get_param('~port', "/dev/ttyACM0")
-    devices = rospy.get_param('~device')
-    data_types = rospy.get_param('~data_type')
+    devices = rospy.get_param('maestro/device')
+    data_types = rospy.get_param('maestro/data_types')
 
     actuators = {}
     sensors = {}
