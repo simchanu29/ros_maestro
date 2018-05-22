@@ -101,7 +101,7 @@ if __name__ == '__main__':
             actuators[device] = devices[device]
 
     maestro = PWMBoard(port, actuators, sensors, data_types)
-    rospy.Subscriber('pwm_cmd', PwmCmd, maestro.cb_pwm)
+    rospy.Subscriber('cmd_pwm', PwmCmd, maestro.cb_pwm)
 
     while not rospy.is_shutdown():
         try:
