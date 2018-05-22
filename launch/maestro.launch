@@ -2,9 +2,9 @@
     <arg name="config_path"/>
     <arg name="port"/>
 
+    <rosparam file="$(arg config_path)" command="load"/>
     <node name="maestro_driver" pkg="ros_maestro" type="maestro_driver.py" output="screen">
         <param name="port" value="$(arg port)"/>
-        <rosparam file="$(arg config_path)" command="load"/>
     </node>
-    
+
 </launch>
