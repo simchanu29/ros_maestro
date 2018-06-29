@@ -8,7 +8,7 @@ import rospy
 from std_msgs.msg import Float32
 from maestro.maestro import Controller
 # from maestro_sim.maestro import Controller # En cas de problème de driver, celui-ci est plus compréhensible et se debug bien
-from ros_maestro.msg import PwmCmd
+from pwmboard_msgs.msg import PwmCmd
 
 # 1000 : marche avant
 # 1500 : statique

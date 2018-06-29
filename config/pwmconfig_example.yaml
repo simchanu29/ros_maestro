@@ -8,7 +8,7 @@ maestro:
       type: 'output'
       range: [-45,45]
       accel: 10
-    'motor100':l
+    'motor100':
       type: 'output'
       range: [-100,100]
       accel: 10

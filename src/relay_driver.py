@@ -6,7 +6,7 @@
 # Input  : tension ou courant en Float32
 import rospy
 from std_srvs.srv import SetBool, SetBoolResponse
-from ros_maestro.msg import PwmCmd
+from pwmboard_msgs.msg import PwmCmd
 
 def toogle_relay(req):
     global pub

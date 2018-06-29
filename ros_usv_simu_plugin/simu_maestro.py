@@ -18,8 +18,7 @@ installée.
 import rospy
 import numpy as np
 import rosparam, rospkg
-#from ros_adafruit_pwm_driver.msg import PwmCmd
-from ros_maestro.msg import PwmCmd
+from pwmboard_msgs.msg import PwmCmd
 from std_msgs.msg import Int16, Float32
 
 class PwmOutput:
